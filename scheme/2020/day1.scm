@@ -25,7 +25,24 @@
 (use-modules (srfi srfi-1))
 
 (define (find-combination lst prop)
+  ;; Given a list, find a combination of entries that satisfy the property procedure.
+  ;;
+  ;; @param lst  : List of input values.
+  ;; @param prop : Procedure to be satisfied by a valid combination.
+  ;; @returns    : List of the entries that satisfy the property or
+  ;;               #f is no valid combination is found.
   (define (run-search v next s)
+    ;; Helper procedure to find the combination in a list that satisfies the property.
+    ;; Given a potential value and a list to search, tests each value in turn; if this list is
+    ;; exhausted without success, start again with a new candidate value until all possible
+    ;; combinations have been tried.
+    ;;
+    ;; @param v    : Candidate value for a valid combination.
+    ;; @param next : A list of values that have been tested already, to be used in subsequent
+    ;;               searches if current one fails.
+    ;; @param s    : List of potential values to search and test in combination with v.
+    ;; @returns    : List of the entries tat satisfy the property or
+    ;;               #f if no valid combination is found.
     (if (null? s)
 	(if (null? next)
 	    #f ; Failed to find a pair.
@@ -38,12 +55,20 @@
   (run-search (car lst) '() (cdr lst)))
 
 (define (day1 lst tgt)
+  ;; Procedure for the 2020 day1 puzzle.
+  ;;
+  ;; @param lst : List of values containing a pair whose sum is some specific value.
+  ;; @param tgt : The target value of the pair sum.
+  ;; @returns   : The product of the pair whose sum = tgt.
   (fold * 1 (find-combination lst
 			      (lambda (lst)
 				(= (fold + 0 lst)
 				   tgt)))))
 
 (define (test-day1)
+  ;; Test procedure for 2020 day1 based on the given example.
+  ;;
+  ;; @returns : #t or #f indicating passing or failing of the test.
   (define input '(1721 979 366 299 675 1456))
   (define expect 514579)
   (= (day1 input 2020) expect))
