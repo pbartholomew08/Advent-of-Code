@@ -24,23 +24,26 @@
 
 (use-modules (srfi srfi-1))
 
-(define (find-pair lst prop)
-  (define (run-search v n s)
+(define (find-combination lst prop)
+  (define (run-search v next s)
     (if (null? s)
-	(if (null? n)
-	    #f
-	    (run-search (car n) '() (cdr n)))
-	(if (prop v (car s))
+	(if (null? next)
+	    #f ; Failed to find a pair.
+	    (run-search (car next) '() (cdr next)))
+	(if (prop (list v (car s)))
 	    (list v (car s))
-	    (run-search v (append n (list (car s))) (cdr s)))))
+	    (run-search v
+			(append next (list (car s)))
+			(cdr s)))))
   (run-search (car lst) '() (cdr lst)))
 
-(define (day1 lst)
-  (fold * 1 (find-pair lst
-		       (lambda (a b)
-			 (= (+ a b) 2020)))))
+(define (day1 lst tgt)
+  (fold * 1 (find-combination lst
+			      (lambda (lst)
+				(= (fold + 0 lst)
+				   tgt)))))
 
 (define (test-day1)
   (define input '(1721 979 366 299 675 1456))
   (define expect 514579)
-  (= (day1 input) expect))
+  (= (day1 input 2020) expect))
