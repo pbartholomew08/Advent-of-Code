@@ -14,12 +14,15 @@
 ;;; You should have received a copy of the GNU General Public License
 ;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 ;;; Day 1.
 ;;; Given a list of numbers, find the pair whose sum is 2020 and return the product.
 ;;;
 ;;; As an example, given '(1721 979 366 299 675 1456) the pair '(1727 299) sum to 2020 and the
 ;;; answer 1721*299=514579.
+;;;
+;;; For given input, solution is 898299.
+
+(use-modules (srfi srfi-1))
 
 (define (find-pair lst prop)
   (define (run-search v n s)
@@ -28,20 +31,14 @@
 	    #f
 	    (run-search (car n) '() (cdr n)))
 	(if (prop v (car s))
-	    (cons v (car s))
+	    (list v (car s))
 	    (run-search v (append n (list (car s))) (cdr s)))))
   (run-search (car lst) '() (cdr lst)))
 
 (define (day1 lst)
-  (define (pair-product pair)
-    ;; Returns the product of a pair of numbers.
-    ;;
-    ;; @param pair : The pair whose product is sought.
-    ;; @returns    : The product.
-    (* (car pair) (cdr pair)))
-  (pair-product (find-pair lst
-			   (lambda (a b)
-			     (= (+ a b) 2020)))))
+  (fold * 1 (find-pair lst
+		       (lambda (a b)
+			 (= (+ a b) 2020)))))
 
 (define (test-day1)
   (define input '(1721 979 366 299 675 1456))
