@@ -23,6 +23,7 @@
 ;;; For given input, solution is 898299.
 
 (use-modules (srfi srfi-1))
+(load "../utils.scm")
 
 (define (find-combination lst prop)
   ;; Given a list, find a combination of entries that satisfy the property procedure.
