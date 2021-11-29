@@ -73,3 +73,7 @@
   (let ((input '(1721 979 366 299 675 1456))
 	(expect 514579))
     (= (day1 input 2020) expect)))
+
+(define (run-day1 datfile tgt)
+  (day1 (read-numbers-from-file datfile)
+	tgt))
