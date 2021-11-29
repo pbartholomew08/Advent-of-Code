@@ -69,6 +69,6 @@
   ;; Test procedure for 2020 day1 based on the given example.
   ;;
   ;; @returns : #t or #f indicating passing or failing of the test.
-  (define input '(1721 979 366 299 675 1456))
-  (define expect 514579)
-  (= (day1 input 2020) expect))
+  (let ((input '(1721 979 366 299 675 1456))
+	(expect 514579))
+    (= (day1 input 2020) expect)))
