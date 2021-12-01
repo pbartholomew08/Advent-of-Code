@@ -47,12 +47,12 @@
 					       prev))))))
   (compute-delta (car lst) lst '()))
 
-(define (sliding-sum lst window-width)
+(define (sliding-op op lst window-width)
   (define (run current-window in out)
     (cond ((null? in)
 	   (if (null? current-window)
 	       out
-	       (append out (list (fold + 0 current-window)))))
+	       (append out (list (fold op 0 current-window)))))
 	  ((< (length current-window) window-width)
 	   (run (append current-window (list (car in)))
 		(cdr in)
@@ -60,14 +60,14 @@
 	  (else
 	   (run (append (cdr current-window) (list (car in)))
 		(cdr in)
-		(append out (list (fold + 0 current-window)))))))
+		(append out (list (fold op 0 current-window)))))))
   (run '() lst '()))
 
 (define (test-sliding-sum-1)
-  (equal? (sliding-sum example-input 1)
+  (equal? (sliding-op + example-input 1)
 	  example-input))
 (define (test-sliding-sum-null)
-  (null? (sliding-sum '() 1)))
+  (null? (sliding-op + '() 1)))
 (define (test-sliding-sum)
   (and (test-sliding-sum-1)
        (test-sliding-sum-null)))
@@ -83,7 +83,7 @@
 	     lst)))
 
 (define (day1 lst window-width)
-  (sum-positives (list-delta (sliding-sum lst window-width))))
+  (sum-positives (list-delta (sliding-op + lst window-width))))
 
 (define (test-day1-1)
   ;; Test day 1 solution against example input for part 1.
