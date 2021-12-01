@@ -25,6 +25,7 @@
 ;;; the depth increases 7 times (there is no increase for the first value as there is no previous
 ;;; measurement).
 
+(define example-input '(199 200 208 210 200 207 240 269 260 263))
 (define (list-delta lst)
   ;; Given a list compute the difference between current and previous values.
   ;; As first value has no previous, make its "delta" 0.
@@ -37,6 +38,24 @@
 					       prev))))))
   (compute-delta (car lst) lst '()))
 
+(define (sliding-sum lst window-width)
+  (define (run current-window in out)
+    (cond ((null? in)
+	   (append out (list (fold + 0 current-window))))
+	  ((< (length current-window) window-width)
+	   (run (append current-window (list (car in)))
+		(cdr in)
+		out))
+	  (else
+	   (run (append (cdr current-window) (list (car in)))
+		(cdr in)
+		(append out (list (fold + 0 current-window)))))))
+  (run '() lst '()))
+
+(define (test-sliding-sum)
+  (equal? (sliding-sum example-input 1)
+	  example-input))
+
 (define (count-positives lst)
   ;; Given a list of numbers count the number of positive (>0) values.
   (fold +
@@ -47,10 +66,16 @@
 		   0))
 	     lst)))
 
-(define (day1 lst)
-  (sum-positives (list-delta lst)))
+(define (day1 lst window-width)
+  (sum-positives (list-delta (sliding-sum lst window-width))))
 
-(define (test-day1)
-  ;; Test day 1 solution against example input.
-  (= (day1 '(199 200 208 210 200 207 240 269 260 263))
+(define (test-day1-1)
+  ;; Test day 1 solution against example input for part 1.
+  (= (day1 example-input
+	   1)
      7))
+(define (test-day1-2)
+  ;; Test day 1 solution against example input for part 2.
+  (= (day1 example-input
+	   3)
+     5))
