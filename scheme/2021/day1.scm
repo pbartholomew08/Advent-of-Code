@@ -24,6 +24,15 @@
 ;;;
 ;;; the depth increases 7 times (there is no increase for the first value as there is no previous
 ;;; measurement).
+;;;
+;;; Explanation:
+;;;
+;;; - Part 1: We need to compute the delta's between entries in a list (with the first entry's
+;;;           "delta" being zero), a second procedure then counts the number of positive deltas
+;;;           to return the final value.
+;;; - Part 2: Essentially the list can first be filtered to produce an intermediate list of a
+;;;           sliding sum of N elements in the input list which is then used as input to the
+;;;           solution of part 1 (with a window size of 1 yielding the original solution).
 
 (define example-input '(199 200 208 210 200 207 240 269 260 263))
 (define (list-delta lst)
