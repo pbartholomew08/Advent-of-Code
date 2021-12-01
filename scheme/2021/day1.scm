@@ -41,7 +41,9 @@
 (define (sliding-sum lst window-width)
   (define (run current-window in out)
     (cond ((null? in)
-	   (append out (list (fold + 0 current-window))))
+	   (if (null? current-window)
+	       out
+	       (append out (list (fold + 0 current-window)))))
 	  ((< (length current-window) window-width)
 	   (run (append current-window (list (car in)))
 		(cdr in)
@@ -52,9 +54,14 @@
 		(append out (list (fold + 0 current-window)))))))
   (run '() lst '()))
 
-(define (test-sliding-sum)
+(define (test-sliding-sum-1)
   (equal? (sliding-sum example-input 1)
 	  example-input))
+(define (test-sliding-sum-null)
+  (null? (sliding-sum '() 1)))
+(define (test-sliding-sum)
+  (and (test-sliding-sum-1)
+       (test-sliding-sum-null)))
 
 (define (count-positives lst)
   ;; Given a list of numbers count the number of positive (>0) values.
@@ -79,3 +86,6 @@
   (= (day1 example-input
 	   3)
      5))
+(define (test-day1)
+  (and (test-day1-1)
+       (test-day1-2)))
