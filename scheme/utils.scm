@@ -14,6 +14,10 @@
 ;;; You should have received a copy of the GNU General Public License
 ;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+(define-module (aoc utils)
+  #:export (read-file
+	    read-numbers-from-file))
+
 ;; Load required modules
 (use-modules (ice-9 rdelim))
 
