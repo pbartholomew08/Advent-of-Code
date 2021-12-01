@@ -77,16 +77,3 @@
 (define (run-day1 datfile tgt)
   (day1 (read-numbers-from-file datfile)
 	tgt))
-
-(define (split-n lst n)
-  (define (build-list-len-n out in)
-    (if ((length out) > (/ (length lst) n))
-	(cons out in)
-	(build-list-len-n (append out (list (car in)))
-			  (cdr in))))
-  (define (build-n-lists out in)
-    (if (null? in)
-	out
-	(build-n-lists (car (build-list-len-n '() in))
-		       (cdr (build-list-len-n '() in)))))
-  (build-n-lists '() lst))
