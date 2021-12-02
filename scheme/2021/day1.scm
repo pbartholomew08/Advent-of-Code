@@ -34,6 +34,8 @@
 ;;;           sliding sum of N elements in the input list which is then used as input to the
 ;;;           solution of part 1 (with a window size of 1 yielding the original solution).
 
+(use-modules (srfi srfi-1))
+
 (define example-input '(199 200 208 210 200 207 240 269 260 263))
 (define (list-delta lst)
   ;; Given a list compute the difference between current and previous values.
