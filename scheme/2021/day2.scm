@@ -36,7 +36,8 @@
 ;;; results in a final position (starting from 0) of 15 horizontal, 10 deep which multiplied
 ;;; together gives 150.
 
-(use-modules (srfi srfi-1))
+(use-modules (srfi srfi-1)
+	     (aoc utils))
 
 (define example-input
   '(("forward" 5)
@@ -45,9 +46,13 @@
     ("up" 3)
     ("down" 8)
     ("forward" 2)))
-(define expected-horizontal 15)
-(define expected-depth 10)
-(define expected-solution 150)
+(define expected-horizontal-1 15)
+(define expected-depth-1 10)
+(define expected-solution-1 150)
+
+(define expected-horizontal-2 15)
+(define expected-depth-2 60)
+(define expected-solution-2 900)
 
 (define (make-sub h d a)
   (list h d a))
@@ -57,53 +62,120 @@
   (cadr sub))
 (define (sub-aim sub)
   (caddr sub))
+(define (sub-hd s)
+  (* (sub-horizontal s)
+     (sub-depth s)))
 
-(define (move-sub sub h d)
+(define (move-sub sub h d a)
   (make-sub (+ (sub-horizontal sub) h)
-	    (+ (sub-depth sub) d)))
+	    (+ (sub-depth sub) d)
+	    (+ (sub-aim sub) a)))
 
 (define (instruction-direction instruction)
   (car instruction))
 (define (instruction-distance instruction)
   (cadr instruction))
-(define (decode-instruction instruction)
+(define (decode-instruction instruction piloting-mode-h piloting-mode-d)
   (cond ((string=? (instruction-direction instruction) "forward")
 	 (lambda (s)
-	   (move-sub s (instruction-distance instruction) 0)))
+	   (let ((h (instruction-distance instruction)))
+	     (move-sub s h (piloting-mode-h s h) 0))))
 	((string=? (instruction-direction instruction) "down")
 	 (lambda (s)
-	   (move-sub s 0 (instruction-distance instruction))))
+	   (let ((d (instruction-distance instruction)))
+	     (move-sub s 0 (piloting-mode-d s d) d))))
 	((string=? (instruction-direction instruction) "up")
-	 (decode-instruction (list "down" (- (instruction-distance instruction)))))
+	 (decode-instruction (list "down" (- (instruction-distance instruction)))
+			     piloting-mode-h
+			     piloting-mode-d))
 	(else
 	 #f)))
 
-(define (command-sub sub instruction)
-  ((decode-instruction instruction) sub))
+(define (command-sub sub instruction piloting-mode-h piloting-mode-d)
+  ((decode-instruction instruction piloting-mode-h piloting-mode-d)
+   sub))
 
-(define (pilot-sub sub instruction-list)
+(define (pilot-sub sub piloting-mode-h piloting-mode-d instruction-list)
   (if (null? instruction-list)
       sub
-      (pilot-sub (command-sub sub (car instruction-list))
+      (pilot-sub (command-sub sub (car instruction-list) piloting-mode-h piloting-mode-d)
+		 piloting-mode-h
+		 piloting-mode-d
 		 (cdr instruction-list))))
 
-(define (test-day2-horizontal)
-  (= (sub-horizontal (pilot-sub (make-sub 0 0) example-input))
-     expected-horizontal))
-(define (test-day2-depth)
-  (= (sub-depth (pilot-sub (make-sub 0 0) example-input))
-     expected-depth))
-(define (test-day2-sub-product)
-  (= (fold * 1 (pilot-sub (make-sub 0 0) example-input))
-     expected-solution))
+(define (piloting-mode-h-1 s h)
+  0)
+(define (piloting-mode-d-1 s d)
+  d)
 
-(define (run-day2 f)
-  (fold *
-	1
-	(pilot-sub (make-sub 0 0)
-		   (map (lambda (s)
-			  (define (convert-last-to-number l)
-			    (list (car l)
-				  (string->number (cadr l))))
-			  (convert-last-to-number (string-split s #\space)))
-			(read-file f)))))
+(define (piloting-mode-h-2 s h)
+  (* h (sub-aim s)))
+(define (piloting-mode-d-2 s d)
+  0)
+
+(define (test-day2-horizontal-1)
+  (= (sub-horizontal (pilot-sub (make-sub 0 0 0)
+				piloting-mode-h-1
+				piloting-mode-d-1
+				example-input))
+     expected-horizontal-1))
+(define (test-day2-depth-1)
+  (= (sub-depth (pilot-sub (make-sub 0 0 0)
+			   piloting-mode-h-1
+			   piloting-mode-d-1
+			   example-input))
+     expected-depth-1))
+(define (test-day2-sub-product-1)
+  (= (sub-hd (pilot-sub (make-sub 0 0 0)
+			piloting-mode-h-1
+			piloting-mode-d-1
+			example-input))
+     expected-solution-1))
+(define (test-day2-1)
+  (and (test-day2-horizontal-1)
+       (test-day2-depth-1)
+       (test-day2-sub-product-1)))
+
+(define (test-day2-horizontal-2)
+  (= (sub-horizontal (pilot-sub (make-sub 0 0 0)
+				piloting-mode-h-2
+				piloting-mode-d-2
+				example-input))
+     expected-horizontal-2))
+(define (test-day2-depth-2)
+  (= (sub-depth (pilot-sub (make-sub 0 0 0)
+			   piloting-mode-h-2
+			   piloting-mode-d-2
+			   example-input))
+     expected-depth-2))
+(define (test-day2-sub-product-2)
+  (= (sub-hd (pilot-sub (make-sub 0 0 0)
+			piloting-mode-h-2
+			piloting-mode-d-2
+			example-input))
+     expected-solution-2))
+(define (test-day2-2)
+  (and (test-day2-horizontal-2)
+       (test-day2-depth-2)
+       (test-day2-sub-product-2)))
+
+
+(define (run-day2 f piloting-mode-h piloting-mode-d)
+  (sub-hd (pilot-sub (make-sub 0 0 0)
+		     piloting-mode-h
+		     piloting-mode-d
+		     (map (lambda (s)
+			    (define (convert-last-to-number l)
+			      (list (car l)
+				    (string->number (cadr l))))
+			    (convert-last-to-number (string-split s #\space)))
+			  (read-file f)))))
+
+(define (run-day2-1 f)
+  (run-day2 f
+	    piloting-mode-h-1
+	    piloting-mode-d-1))
+(define (run-day2-2 f)
+  (run-day2 f
+	    piloting-mode-h-2
+	    piloting-mode-d-2))
