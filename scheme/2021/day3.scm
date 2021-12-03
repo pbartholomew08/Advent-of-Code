@@ -24,6 +24,8 @@
 ;;; then GAMMA=10110=22 and EPSILON=01001=9.
 ;;; The power consumption is given by their product.
 
+(use-modules (srfi srfi-1))
+
 (define example-input '(#b00100
 			#b11110
 			#b10110
