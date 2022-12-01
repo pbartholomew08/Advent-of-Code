@@ -45,5 +45,6 @@
   ;; Reads a file, returning a list with each string converted to a number.
   ;;
   ;; @param f : String of filename to be read.
-  ;; @returns : List of numbers whose elements represent a line in the file.
+  ;; @returns : List of numbers whose elements represent a line in the file, blank lines evaluate as
+  ;;            #f.
   (map string->number (read-file f)))
