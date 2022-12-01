@@ -22,7 +22,7 @@
 (use-modules (ice-9 rdelim))
 
 (define (read-file f)
-  ;; Reads a file line-by-line, returining a list with each line as an element.
+  ;; Reads a file line-by-line, returning a list with each line as an element.
   ;;
   ;; @param f : String of filename to be read.
   ;; @returns : List whose elements represent a line in the file.
