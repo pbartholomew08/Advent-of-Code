@@ -1,6 +1,8 @@
 ;;;; day2.scm --- Cube conundrum
 ;;
 
+(use-modules (srfi srfi-1)) ; List processing module
+
 ;;; Part 1
 ;;
 ;; The Elf explains that you've arrived at Snow Island and apologizes for the lack of snow. He'll be
@@ -63,20 +65,29 @@
 
 (define (list-sum lst)
   "Sum the values in a list."
-  (define (run sum lst)
-    (if (null? lst)
-	sum
-	(run (+ sum (car lst))
-	     (cdr lst))))
-  (run 0 lst))
+  (reduce + 0 lst))
+
+(define (list-product lst)
+  "Compute the product of a list."
+  (if (null? lst)
+      0
+      (reduce * 1 lst)))
+
+(define (list-and lst)
+  "Apply and across a list."
+  (reduce (lambda (a b)
+	    (and a b))
+	  #t
+	  lst))
 
 ;; To test if a game was possible, the number of red/blue/green cubes must be >= the maximum
 ;; observed in that game.
 (define (possible-game? game max-red max-blue max-green)
-  "Check if a game was possible given maximum values of red, blue and green."
-  (and (possible-colour? game "red" max-red)
-       (possible-colour? game "blue" max-blue)
-       (possible-colour? game "green" max-green)))
+  "Check if a game was possible by checking each colour."
+  (list-and (map (lambda (c mc)
+		   (possible-colour? game c mc))
+		 (list "red" "blue" "green")
+		 (list max-red max-blue max-green))))
 
 (define (possible-colour? game colour max-colour)
   "Determine if a game was possible for a given colour, given its maximum value."
@@ -111,27 +122,12 @@ semi-colons."
 	 (string->number (car (string-split ob #\space))))
        (get-colour-observations colour obs)))
 
-(define example-input '("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
-			"Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 read; 1 green, 1 blue"
-			"Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"
-			"Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"
-			"Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"))
-
-(define (get-possible-ids games max-red max-blue max-green)
-  "Find the game IDs of all possible games for a given set of colour maximum counts, if a given game
-is not possible replace its ID with zero."
-  (map (lambda (g)
-	 (if (possible-game? g max-red max-blue max-green)
-	     (get-game-id g)
-	     0))
-       games))
-
-(define (day2 games max-red max-blue max-green)
-  "Computes the sum of all valid game IDs for a given set of colour maximum counts."
-  (list-sum (get-possible-ids games
-			      max-red
-			      max-blue
-			      max-green)))
+(define (get-possible-id game max-red max-blue max-green)
+  "Find the game ID of a possible game for a given set of colour maximum counts, if a given game is
+not possible replace its ID with zero."
+  (if (possible-game? game max-red max-blue max-green)
+      (get-game-id game)
+      0))
 
 ;;; Part 2
 ;;
@@ -160,11 +156,41 @@ is not possible replace its ID with zero."
 ;; This is fairly easy - already getting the maximum observation of each colour per game (equivalent
 ;; to the minimum required) so we just need to compute the product of these across all games and sum
 ;; the result!
-(define (get-cube-powers games)
-   (map (lambda (g)
-	  (* (list-max (get-colour-counts "red" (get-observations g)))
-	     (list-max (get-colour-counts "blue" (get-observations g)))
-	     (list-max (get-colour-counts "green" (get-observations g)))))
+(define (get-cube-powers game)
+  (define (get-max-colour-count colour)
+    (list-max (get-colour-counts colour
+				 (get-observations game))))
+  (list-product (map (lambda (colour)
+		       (get-max-colour-count colour))
+		     '("red" "blue" "green"))))
+
+;;; Solution
+;;
+;; Combining Parts 1 and 2 into a single solution.
+
+(define (day2 f games)
+  (list-sum (map f games)))
+
+(define (day2.1 games max-red max-blue max-green)
+  "Computes the sum of all valid game IDs for a given set of colour maximum counts."
+  (day2 (lambda (g)
+	  (get-possible-id g max-red max-blue max-green))
 	games))
 (define (day2.2 games)
-  (list-sum (get-cube-powers games)))
+  (day2 get-cube-powers games))
+
+;;; Tests
+(use-modules (srfi srfi-64))
+
+(define example-input '("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
+			"Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue"
+			"Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"
+			"Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"
+			"Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"))
+
+(test-begin "day2-examples")
+
+(test-equal 8 (day2.1 example-input 12 14 13))
+(test-equal 2286 (day2.2 example-input))
+
+(test-end "day2-examples")
