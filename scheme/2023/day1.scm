@@ -52,15 +52,13 @@ both the first AND last character."
 combining the first and last numerical characters."
   (list->number (first-and-last (string->numeric-string str))))
 
-(use-modules (aoc utils))
-(define (day1 file)
+(define (day1 lst)
   (define (run sum lst)
     (if (not (null? lst))
 	(run (+ sum (day1:parse-line (car lst)))
 	     (cdr lst))
 	sum))
-  (let ((lst (read-file file)))
-    (run 0 lst)))
+  (run 0 lst))
 
 ;; Result: 54605
 ;;; Tests
@@ -94,5 +92,10 @@ combining the first and last numerical characters."
 (test-equal 38 (day1:parse-line "pqr3stu8vwx"))
 (test-equal 15 (day1:parse-line "a1b2c3d4e5f"))
 (test-equal 77 (day1:parse-line "treb7uchet"))
+
+(test-equal 142 (day1 '("1abc2"
+			"pqr3stu8vwx"
+			"a1b2c3d4e5f"
+			"treb7uchet")))
 
 (test-end "day1-examples")
